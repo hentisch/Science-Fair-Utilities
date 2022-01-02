@@ -31,8 +31,8 @@ class PushshiftIO:
 
     @staticmethod
     def get_random_user() -> str:
-        with open("69M_reddit_accounts.csv", "r") as user_list: #this file is 69382539 lines long
-            raw_value = PushshiftIO.read_specific_line(randint(1, 1000), user_list)
+        with open("/Volumes/Lexar/Git_Code/Science-Fair-Utilities/69M_reddit_accounts.csv", "r") as user_list: #this file is 69382539 lines long
+            raw_value = PushshiftIO.read_specific_line(randint(2, 69382539), user_list)
             return raw_value.split(",")[1], raw_value.split(",")[4], raw_value.split(",")[5]
             #this file is structured as id,name,created_utc,updated_on,comment_karma,link_karma\
             #return PushshiftIO.read_specific_line(randint(1, 69382539), user_list)
@@ -47,7 +47,7 @@ class PushshiftIO:
     
     @staticmethod
     def get_random_users(users:int) -> list:
-        return [(x.split()[1], x.split()[4], x.split()[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=1000, min=3), "/Volumes/Lexar/Git_Code/Science-Fair-Utilities/69M_reddit_accounts.csv") ]
+        return [(x.split(',')[1], x.split(',')[4], x.split(',')[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=69382539, min=2), "/Volumes/Lexar/Git_Code/Science-Fair-Utilities/69M_reddit_accounts.csv") ]
         #69382539 should be the max
 
     @staticmethod
@@ -76,5 +76,7 @@ class PushshiftIO:
         return content
 
 if __name__ == "__main__":
-    with open("content.txt", "w") as f:
+    """"
+    with open("/Volumes/Lexar/Git_Code/Science-Fair-Utilities/content.txt", "w") as f:
         f.write(PushshiftIO.get_all_user_content(PushshiftIO.get_random_user()[0]))
+    """
