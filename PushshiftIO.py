@@ -64,7 +64,7 @@ class PushshiftIO:
         request = requests.get(url)
         json_response = request.json()
         time.sleep(PushshiftIO.delay)
-        return [ (x["title"].strip("\n"), x["selftext"].strip("\n")) for x in json_response['data']]
+        return [(x["title"].strip("\n"), x["selftext"].strip("\n")) for x in json_response['data'] if x["is_self"] or len(x["selftext"]) > 300]
     
     @staticmethod
     def get_all_user_content(user: str) -> str:
@@ -76,4 +76,5 @@ class PushshiftIO:
         return content
 
 if __name__ == "__main__":
-    print(PushshiftIO.get_all_user_content(PushshiftIO.get_random_user()[0]))
+    with open("content.txt", "w") as f:
+        f.write(PushshiftIO.get_all_user_content(PushshiftIO.get_random_user()[0]))
