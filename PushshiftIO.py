@@ -25,7 +25,7 @@ class PushshiftIO:
         return PushshiftIO.current_requests < PushshiftIO.rate_limit
     
     @staticmethod
-    def update_request_count():
+    def add_request():
         if PushshiftIO.get_minute() > PushshiftIO.current_minute:
             PushshiftIO.current_minute = PushshiftIO.get_minute()
             PushshiftIO.current_requests = 1
@@ -70,11 +70,14 @@ class PushshiftIO:
 
     @staticmethod
     def get_user_comments(user: str) -> list: 
-        url = f"https://api.pushshift.io/reddit/search/comment/?author={user}"
-        print(url)
-        request = requests.get(url)
-        json_response = request.json()
-        return [e["body"].strip("\n") for e in json_response['data']]
+        while True:
+            if PushshiftIO.check_rate():
+                url = f"https://api.pushshift.io/reddit/search/comment/?author={user}"
+                print(url)
+                request = requests.get(url)
+                json_response = request.json()
+                PushshiftIO.update
+                return [e["body"].strip("\n") for e in json_response['data']]
 
     @staticmethod
     def get_user_submissions(user: str) -> list: 
