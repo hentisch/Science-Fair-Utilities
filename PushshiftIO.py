@@ -89,11 +89,3 @@ class PushshiftIO:
         The is_self field will retrurn true if the sumbssion doesetn link to anything, which can be really helpfull 
         for figuring out when a post is really just a reposted article from the internet
         """
-
-print("Current Rate Limit: " + str(PushshiftIO.rate_limit))
-
-while True:
-    if PushshiftIO.check_rate():
-        PushshiftIO.update_request_count()
-        time.sleep(random.random())
-    print(PushshiftIO.current_requests)
