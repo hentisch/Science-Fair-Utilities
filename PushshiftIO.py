@@ -33,7 +33,8 @@ class PushshiftIO:
     def get_random_user() -> str:
         with open("69M_reddit_accounts.csv", "r") as user_list: #this file is 69382539 lines long
             raw_value = PushshiftIO.read_specific_line(randint(1, 1000), user_list)
-            return raw_value.split(",")[0], raw_value.split(",")[1]
+            return raw_value.split(",")[1], raw_value.split(",")[4], raw_value.split(",")[5]
+            #this file is structured as id,name,created_utc,updated_on,comment_karma,link_karma\
             #return PushshiftIO.read_specific_line(randint(1, 69382539), user_list)
     
     @staticmethod
@@ -46,8 +47,9 @@ class PushshiftIO:
     
     @staticmethod
     def get_random_users(users:int) -> list:
-        return PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=1000, min=3), "/Volumes/Lexar/Git_Code/Science-Fair-Utilities/69M_reddit_accounts.csv") #69382539 should be the max
-
+        return [(x.split()[1], x.split()[4], x.split()[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=1000, min=3), "/Volumes/Lexar/Git_Code/Science-Fair-Utilities/69M_reddit_accounts.csv") ]
+        #69382539 should be the max
+        
     @staticmethod
     def get_user_comments(user: str) -> list: 
         url = f"https://api.pushshift.io/reddit/search/comment/?author={user}"
@@ -67,11 +69,6 @@ class PushshiftIO:
         time.sleep(PushshiftIO.delay)
         return [ (x["title"].strip("\n"), x["selftext"].strip("\n")) for x in json_response['data']]
 
-        """
-        For submissions, the ["selftext"] field and ["title"] field are what return the socially relevent data. 
-        The is_self field will retrurn true if the sumbssion doesetn link to anything, which can be really helpfull 
-        for figuring out when a post is really just a reposted article from the internet
-        """
 if __name__ == "__main__":
     while True:
         PushshiftIO.get_user_submissions(PushshiftIO.get_random_user()[1]) + PushshiftIO.get_user_comments(PushshiftIO.get_random_user()[1])
