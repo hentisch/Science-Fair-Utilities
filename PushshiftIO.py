@@ -6,6 +6,7 @@ from random import randint
 import numpy as np
 import time
 import random
+from tqdm import tqdm
 
 class PushshiftIO:
     delay = 60 / requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] + 1 #This is measured in requests per minute. Also, just for saftey, we run exactly 1 request under the posted limit 
@@ -17,16 +18,24 @@ class PushshiftIO:
                 return line
     
     @staticmethod
-    def read_specific_lines(line_indexes:list, file) -> list:
-        print("reading lines")
+    def read_specific_lines(line_indexes:list, file, show_output=True) -> list:
         with open(file, 'r') as f:
             lines = []
             maximum = max(line_indexes)
-            for i, line in enumerate(f):
-                if (i+1) in line_indexes:
-                    lines.append(line.strip())
-                if (i+1) > maximum:
-                    return lines
+            if show_output:
+                with tqdm(total=maximum) as pbar:
+                    for i, line in enumerate(f):
+                        if (i+1) in line_indexes:
+                            lines.append(line.strip())
+                        if (i+1) > maximum:
+                            return lines
+                        pbar.update(1)
+            else:
+                for i, line in enumerate(f):
+                    if (i+1) in line_indexes:
+                        lines.append(line.strip())
+                    if (i+1) > maximum:
+                        return lines
             return lines
 
     @staticmethod
