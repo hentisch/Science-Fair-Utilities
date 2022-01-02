@@ -3,19 +3,30 @@ import matplotlib as plt
 from PushshiftIO import PushshiftIO
 import pandas as pd
 import numpy as np
-trials = 0
+import sys
+trials = 2 #sys.argv[1]
 accounts = []
+try:
+    open("final_results.csv")
+except FileNotFoundError:
 
-finalData = pd.DataFrame(columns=["user", "karma", "Total Words", "Total Characters"])
+    subjects = PushshiftIO.get_random_users(trials)
+    dataMatrix = []
+    dataMatrix.append(["user", "karma", "Total Words", "Total Characters"])
 
-subjects = PushshiftIO.get_random_users(trials)
-dataMatrix = []
+    for x in subjects:
+        #content = PushshiftIO.get_user_comments(x) + " " + PushshiftIO.get_user_submissions(x)
+        content = ""
+        for y in PushshiftIO.get_user_comments(x):
+            content += y
+            content += " "
+        for y in PushshiftIO.get_user_submissions(x):
+            content += y[0].strip() 
+            content += " "
+            content += y[1].strip()
+            content += " "
+        user_statistics = [x, len(content), len(content.split())]
+        dataMatrix.append(user_statistics)
 
-for x in subjects:
-    content = PushshiftIO.get_user_comments(x) + " " + PushshiftIO.get_user_submissions(x)
-    user_statistics = [x, len(content), len(content.split())]
-    dataMatrix.append(user_statistics)
-
-finalData.concat(dataMatrix)
-finalData.to_csv("final_results.csv")
-
+    final_data = pd.DataFrame(dataMatrix)
+    final_data.to_csv("final_results.csv")

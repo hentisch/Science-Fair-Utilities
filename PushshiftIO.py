@@ -4,8 +4,33 @@ import json
 import pandas
 from random import randint
 import numpy as np
+import time
+import random
 
 class PushshiftIO:
+
+    current_requests = 0
+    current_minute = 0
+    rate_limit = requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] - 1 #This is measured in requests per minute. Also, just for saftey, we run exactly 1 request under the posted limit 
+
+    @staticmethod
+    def get_minute() -> int:
+        return int(time.time() / 60)
+
+    @staticmethod
+    def check_rate() -> bool:
+        if PushshiftIO.get_minute() > PushshiftIO.current_minute:
+            PushshiftIO.current_requests = 0
+            PushshiftIO.current_minute = PushshiftIO.get_minute()
+        return PushshiftIO.current_requests < PushshiftIO.rate_limit
+    
+    @staticmethod
+    def update_request_count():
+        if PushshiftIO.get_minute() > PushshiftIO.current_minute:
+            PushshiftIO.current_minute = PushshiftIO.get_minute()
+            PushshiftIO.current_requests = 1
+        else:
+            PushshiftIO.current_requests += 1
 
     @staticmethod
     def read_specific_line(line_index:int, file) -> str:
@@ -25,7 +50,6 @@ class PushshiftIO:
                 if (i+1) > maximum:
                     return lines
             return lines
-        
 
     @staticmethod
     def get_random_user() -> str:
@@ -42,21 +66,23 @@ class PushshiftIO:
     
     @staticmethod
     def get_random_users(users:int) -> list:
-        return PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=69382539, min=3), "69M_reddit_accounts.csv") 
+        return PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=1000, min=3), "/Volumes/Lexar/Git_Code/Science-Fair-Utilities/69M_reddit_accounts.csv") #69382539 should be the max
 
     @staticmethod
     def get_user_comments(user: str) -> list: 
         url = f"https://api.pushshift.io/reddit/search/comment/?author={user}"
+        print(url)
         request = requests.get(url)
         json_response = request.json()
-        return json_response['data'] 
+        return [e["body"].strip("\n") for e in json_response['data']]
 
     @staticmethod
     def get_user_submissions(user: str) -> list: 
         url = f"https://api.pushshift.io/reddit/search/submission/?author={user}"
+        print(url)
         request = requests.get(url)
         json_response = request.json()
-        return [ [x["title"].strip("\n"), x["selftext"].strip("\n")] for x in json_response['data']]
+        return [ (x["title"].strip("\n"), x["selftext"].strip("\n")) for x in json_response['data']]
 
         """
         For submissions, the ["selftext"] field and ["title"] field are what return the socially relevent data. 
@@ -64,3 +90,10 @@ class PushshiftIO:
         for figuring out when a post is really just a reposted article from the internet
         """
 
+print("Current Rate Limit: " + str(PushshiftIO.rate_limit))
+
+while True:
+    if PushshiftIO.check_rate():
+        PushshiftIO.update_request_count()
+        time.sleep(random.random())
+    print(PushshiftIO.current_requests)
