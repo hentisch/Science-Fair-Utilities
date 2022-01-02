@@ -12,20 +12,15 @@ except FileNotFoundError:
 
     subjects = PushshiftIO.get_random_users(trials)
     dataMatrix = []
-    dataMatrix.append(["user", "karma", "Total Words", "Total Characters"])
+    dataMatrix.append(["user", "comment_karma", "submission_karma", "Total Words", "Total Characters (not including spaces)"])
 
     for x in subjects:
-        #content = PushshiftIO.get_user_comments(x) + " " + PushshiftIO.get_user_submissions(x)
-        content = ""
-        for y in PushshiftIO.get_user_comments(x):
-            content += y
-            content += " "
-        for y in PushshiftIO.get_user_submissions(x):
-            content += y[0].strip() 
-            content += " "
-            content += y[1].strip()
-            content += " "
-        user_statistics = [x, len(content), len(content.split())]
+        content = PushshiftIO.get_all_user_content(x)
+        words_list = content.split(" ")
+        character_count = 0
+        for x in words_list:
+            character_count += len(x)
+        user_statistics = [x[0], x[4], x[5], len(words_list), character_count]
         dataMatrix.append(user_statistics)
 
     final_data = pd.DataFrame(dataMatrix)
