@@ -8,29 +8,7 @@ import time
 import random
 
 class PushshiftIO:
-
-    current_requests = 0
-    current_minute = 0
-    rate_limit = requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] - 1 #This is measured in requests per minute. Also, just for saftey, we run exactly 1 request under the posted limit 
-
-    @staticmethod
-    def get_minute() -> int:
-        return int(time.time() / 60)
-
-    @staticmethod
-    def check_rate() -> bool:
-        if PushshiftIO.get_minute() > PushshiftIO.current_minute:
-            PushshiftIO.current_requests = 0
-            PushshiftIO.current_minute = PushshiftIO.get_minute()
-        return PushshiftIO.current_requests < PushshiftIO.rate_limit
-    
-    @staticmethod
-    def add_request():
-        if PushshiftIO.get_minute() > PushshiftIO.current_minute:
-            PushshiftIO.current_minute = PushshiftIO.get_minute()
-            PushshiftIO.current_requests = 1
-        else:
-            PushshiftIO.current_requests += 1
+    delay = 60 / requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] + 1 #This is measured in requests per minute. Also, just for saftey, we run exactly 1 request under the posted limit 
 
     @staticmethod
     def read_specific_line(line_index:int, file) -> str:
@@ -54,7 +32,9 @@ class PushshiftIO:
     @staticmethod
     def get_random_user() -> str:
         with open("69M_reddit_accounts.csv", "r") as user_list: #this file is 69382539 lines long
-            return PushshiftIO.read_specific_line(randint(1, 69382539), user_list)
+            raw_value = PushshiftIO.read_specific_line(randint(1, 1000), user_list)
+            return raw_value.split(",")[0], raw_value.split(",")[1]
+            #return PushshiftIO.read_specific_line(randint(1, 69382539), user_list)
     
     @staticmethod
     def get_unique_array(length:int, max:int, min:int) -> np.array:
@@ -70,21 +50,21 @@ class PushshiftIO:
 
     @staticmethod
     def get_user_comments(user: str) -> list: 
-        while True:
-            if PushshiftIO.check_rate():
-                url = f"https://api.pushshift.io/reddit/search/comment/?author={user}"
-                print(url)
-                request = requests.get(url)
-                json_response = request.json()
-                PushshiftIO.update
-                return [e["body"].strip("\n") for e in json_response['data']]
+        url = f"https://api.pushshift.io/reddit/search/comment/?author={user}"
+        print(url)
+        request = requests.get(url)
+        json_response = request.json()
+        time.sleep(PushshiftIO.delay)
+        return [e["body"].strip("\n") for e in json_response['data']]
 
     @staticmethod
     def get_user_submissions(user: str) -> list: 
         url = f"https://api.pushshift.io/reddit/search/submission/?author={user}"
         print(url)
         request = requests.get(url)
+        print(request)
         json_response = request.json()
+        time.sleep(PushshiftIO.delay)
         return [ (x["title"].strip("\n"), x["selftext"].strip("\n")) for x in json_response['data']]
 
         """
@@ -92,3 +72,6 @@ class PushshiftIO:
         The is_self field will retrurn true if the sumbssion doesetn link to anything, which can be really helpfull 
         for figuring out when a post is really just a reposted article from the internet
         """
+if __name__ == "__main__":
+    while True:
+        PushshiftIO.get_user_submissions(PushshiftIO.get_random_user()[1]) + PushshiftIO.get_user_comments(PushshiftIO.get_random_user()[1])
