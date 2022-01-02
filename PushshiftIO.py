@@ -49,11 +49,10 @@ class PushshiftIO:
     def get_random_users(users:int) -> list:
         return [(x.split()[1], x.split()[4], x.split()[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=1000, min=3), "/Volumes/Lexar/Git_Code/Science-Fair-Utilities/69M_reddit_accounts.csv") ]
         #69382539 should be the max
-        
+
     @staticmethod
     def get_user_comments(user: str) -> list: 
         url = f"https://api.pushshift.io/reddit/search/comment/?author={user}"
-        print(url)
         request = requests.get(url)
         json_response = request.json()
         time.sleep(PushshiftIO.delay)
@@ -62,13 +61,19 @@ class PushshiftIO:
     @staticmethod
     def get_user_submissions(user: str) -> list: 
         url = f"https://api.pushshift.io/reddit/search/submission/?author={user}"
-        print(url)
         request = requests.get(url)
-        print(request)
         json_response = request.json()
         time.sleep(PushshiftIO.delay)
         return [ (x["title"].strip("\n"), x["selftext"].strip("\n")) for x in json_response['data']]
+    
+    @staticmethod
+    def get_all_user_content(user: str) -> str:
+        content = ""
+        for x in PushshiftIO.get_user_submissions(user):
+            content += x[0] + "\n" + x[1] + "\n"
+        for x in PushshiftIO.get_user_comments(user):
+            content += x + "\n"
+        return content
 
 if __name__ == "__main__":
-    while True:
-        PushshiftIO.get_user_submissions(PushshiftIO.get_random_user()[1]) + PushshiftIO.get_user_comments(PushshiftIO.get_random_user()[1])
+    print(PushshiftIO.get_all_user_content(PushshiftIO.get_random_user()[0]))
