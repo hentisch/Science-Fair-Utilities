@@ -73,6 +73,7 @@ class PushshiftIO:
     @staticmethod
     def get_all_user_content(user: str) -> str:
         content = ""
+        times_rate_limited = 0
         while len(content) <= 0:
             try:
                 for x in PushshiftIO.get_user_submissions(user):
@@ -80,10 +81,13 @@ class PushshiftIO:
                 for x in PushshiftIO.get_user_comments(user):
                     content += x + "\n"
                 return content
-            except:
+            except Exception as e:
                 content = ""
-                print("Unexpected rate limit, currently waiting for 1 minute to avoid longer blockage")
-                time.sleep(60)
+                rate_limit = 60 + (60**0.5*times_rate_limited) #This will increase our wait time exponentially^2 to avoid real rate-blocks
+                print("Unexpected rate limit, currently waiting for" + str(rate_limit) + "seconds in order to avoid longer blockage")
+                print("The exact error produced was :" + str(e))
+                time.sleep(rate_limit) 
+                times_rate_limited += 1
 
 if __name__ == "__main__":
     """"
