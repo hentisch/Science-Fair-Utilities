@@ -6,6 +6,9 @@ from tqdm import tqdm
 
 class PushshiftIO:
     delay = 60 / (requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] - 20) #This is measured in requests per minute. Due to many errors in real world use, this has been reduced to 100 requests per minute
+    total_times_limited = 0
+    print(delay)
+
 
     @staticmethod
     def read_specific_line(line_index:int, file) -> str:
@@ -82,11 +85,13 @@ class PushshiftIO:
                     content += x + "\n"
                 return content
             except Exception as e:
+                PushshiftIO.total_times_limited += 1
                 content = ""
-                rate_limit = 60 + (60**0.5*times_rate_limited) #This will increase our wait time exponentially^2 to avoid real rate-blocks
-                print("Unexpected rate limit, currently waiting for" + str(rate_limit) + "seconds in order to avoid longer blockage")
+                wait_time = 60 + (12**PushshiftIO.total_times_limited) #This will increase our wait time exponentially to avoid real rate-blocks
+                PushshiftIO.delay += (0.2**PushshiftIO.total_times_limited)*0.2
+                print("Unexpected rate limit, currently waiting for " + str(wait_time) + " seconds in order to avoid longer blockage. The request delay has also been increased to " + str(PushshiftIO.delay))
                 print("The exact error produced was :" + str(e))
-                time.sleep(rate_limit) 
+                time.sleep(wait_time) 
                 times_rate_limited += 1
 
 if __name__ == "__main__":
