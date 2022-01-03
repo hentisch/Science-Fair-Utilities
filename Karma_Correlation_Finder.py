@@ -1,8 +1,4 @@
-from pandas.core.reshape.concat import concat
-import matplotlib as plt
 from PushshiftIO import PushshiftIO
-import pandas as pd
-import numpy as np
 import sys
 from tqdm import tqdm
 trials = int(sys.argv[1])
