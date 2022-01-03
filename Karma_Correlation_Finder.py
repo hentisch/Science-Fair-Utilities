@@ -14,8 +14,5 @@ except FileNotFoundError:
         for x, y, z in tqdm(subjects):
             content = PushshiftIO.get_all_user_content(x)
             words_list = content.split()
-            character_count = 0
-            for a in words_list:
-                character_count += len(a)
-            final_results.writelines(x + "," + str(y) + "," + str(z) + "," + str(len(words_list)) + "," + str(character_count) + "\n")
+            final_results.writelines(x + "," + str(y) + "," + str(z) + "," + str(len(words_list)) + "," + str(len(content)-len(words_list)) + "\n")
         print("Done!")
