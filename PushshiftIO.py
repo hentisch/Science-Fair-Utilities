@@ -80,10 +80,10 @@ class PushshiftIO:
                 for x in PushshiftIO.get_user_comments(user):
                     content += x + "\n"
                 return content
-            except simplejson.errors.JSONDecodeError:
+            except:
                 content = ""
                 print("Unexpected rate limit, currently waiting for 1 minute to avoid longer blockage")
-                sleep(60)
+                time.sleep(60)
 
 if __name__ == "__main__":
     """"
