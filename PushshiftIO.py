@@ -1,11 +1,7 @@
-import pandas
 import requests
-import json
-import pandas
 from random import randint
 import numpy as np
 import time
-import random
 from tqdm import tqdm
 
 class PushshiftIO:
