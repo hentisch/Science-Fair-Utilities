@@ -51,7 +51,7 @@ class PushshiftIO:
     
     @staticmethod
     def get_random_users(users:int) -> list:
-        return [(x.split(',')[1], x.split(',')[4], x.split(',')[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=100, min=2), "69M_reddit_accounts.csv")]
+        return [(x.split(',')[1], x.split(',')[4], x.split(',')[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=69382539, min=2), "69M_reddit_accounts.csv")]
         #69382539 should be the max
 
     @staticmethod
