@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 
 class PushshiftIO:
-    delay = 60 / (requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] - 3) #This is measured in requests per minute. Also, just for saftey, we run exactly 3 requests under the posted limit 
+    delay = 60 / (requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] - 20) #This is measured in requests per minute. Due to many errors in real world use, this has been reduced to 100 requests per minute
 
     @staticmethod
     def read_specific_line(line_index:int, file) -> str:
@@ -51,7 +51,7 @@ class PushshiftIO:
     
     @staticmethod
     def get_random_users(users:int) -> list:
-        return [(x.split(',')[1], x.split(',')[4], x.split(',')[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=69382539, min=2), "69M_reddit_accounts.csv")]
+        return [(x.split(',')[1], x.split(',')[4], x.split(',')[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=100, min=2), "69M_reddit_accounts.csv")]
         #69382539 should be the max
 
     @staticmethod
@@ -73,11 +73,17 @@ class PushshiftIO:
     @staticmethod
     def get_all_user_content(user: str) -> str:
         content = ""
-        for x in PushshiftIO.get_user_submissions(user):
-            content += x[0] + "\n" + x[1] + "\n"
-        for x in PushshiftIO.get_user_comments(user):
-            content += x + "\n"
-        return content
+        while len(content) <= 0:
+            try:
+                for x in PushshiftIO.get_user_submissions(user):
+                    content += x[0] + "\n" + x[1] + "\n"
+                for x in PushshiftIO.get_user_comments(user):
+                    content += x + "\n"
+                return content
+            except simplejson.errors.JSONDecodeError:
+                content = ""
+                print("Unexpected rate limit, currently waiting for 1 minute to avoid longer blockage")
+                sleep(60)
 
 if __name__ == "__main__":
     """"
