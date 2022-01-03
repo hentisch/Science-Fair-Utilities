@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 
 class PushshiftIO:
-    delay = 60 / requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] + 1 #This is measured in requests per minute. Also, just for saftey, we run exactly 1 request under the posted limit 
+    delay = 60 / requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] - 3 #This is measured in requests per minute. Also, just for saftey, we run exactly 3 requests under the posted limit 
 
     @staticmethod
     def read_specific_line(line_index:int, file) -> str:
@@ -68,7 +68,7 @@ class PushshiftIO:
         request = requests.get(url)
         json_response = request.json()
         time.sleep(PushshiftIO.delay)
-        return [(x["title"].strip("\n"), x["selftext"].strip("\n")) for x in json_response['data'] if x["is_self"] or len(x.get("selftext", "")) > 300]            
+        return [(x["title"].strip("\n"), x.get("selftext", "").strip("\n")) for x in json_response['data'] if x["is_self"] or len(x.get("selftext", "")) > 300]            
     
     @staticmethod
     def get_all_user_content(user: str) -> str:
