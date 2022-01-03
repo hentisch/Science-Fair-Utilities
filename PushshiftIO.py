@@ -5,7 +5,7 @@ import time
 from tqdm import tqdm
 
 class PushshiftIO:
-    delay = 60 / requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] - 3 #This is measured in requests per minute. Also, just for saftey, we run exactly 3 requests under the posted limit 
+    delay = 60 / (requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] - 3) #This is measured in requests per minute. Also, just for saftey, we run exactly 3 requests under the posted limit 
 
     @staticmethod
     def read_specific_line(line_index:int, file) -> str:
