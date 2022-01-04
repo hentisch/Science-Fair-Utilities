@@ -1,3 +1,4 @@
+import json
 import requests
 from random import randint
 import numpy as np
@@ -53,25 +54,42 @@ class PushshiftIO:
     
     @staticmethod
     def get_random_users(users:int) -> list:
-        return [(x.split(',')[1], x.split(',')[4], x.split(',')[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=69382539, min=2), "69M_reddit_accounts.csv")]
+        return [(x.split(',')[1], x.split(',')[4], x.split(',')[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=100, min=2), "69M_reddit_accounts.csv")]
         #69382539 should be the max
 
     @staticmethod
     def get_user_comments(user: str) -> list: 
-        url = f"https://api.pushshift.io/reddit/search/comment/?author={user}"
-        request = requests.get(url)
-        json_response = request.json()
-        time.sleep(PushshiftIO.delay)
-        return [e["body"].strip("\n") for e in json_response['data']]
+        #TODO: Please implement these to crawl back through a users history and get EVERYTHING they have posted that way
+        #Also, based on testing the returned results are limited to 100 despite what documentation says
+        results = 101 
+        content = []
+        last_time = 0
+        while results >= 100:
+            url = f'https://api.pushshift.io/reddit/search/comment/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=body,created_utc&after={last_time}'
+            request = requests.get(url)
+            json_response = request.json()
+            last_time = json_response["data"][-1]["created_utc"]
+            content +=  [e["body"].strip("\n") for e in json_response['data']]
+            results = json_response['metadata']['total_results']
+            time.sleep(PushshiftIO.delay)
+            print("New Iter")
+        return content
 
     @staticmethod
-    def get_user_submissions(user: str) -> list: 
-        url = f"https://api.pushshift.io/reddit/search/submission/?author={user}"
-        request = requests.get(url)
-        json_response = request.json()
-        time.sleep(PushshiftIO.delay)
-        return [(x["title"].strip("\n"), x.get("selftext", "").strip("\n")) for x in json_response['data'] if x["is_self"] or len(x.get("selftext", "")) > 300]            
-    
+    def get_user_submissions(user: str) -> list:
+        results = 101
+        content = []
+        last_time = 0
+        while results >= 100:
+            url = f'https://api.pushshift.io/reddit/search/submission/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=title,selftext,is_self,created_utc&after={last_time}'
+            request = requests.get(url)
+            json_response = request.json()
+            last_time = json_response["data"][-1]["created_utc"]
+            content += [(x["title"].strip("\n"), x.get("selftext", "").strip("\n")) for x in json_response['data'] if x["is_self"] or len(x.get("selftext", "")) > 300]            
+            results = json_response['metadata']['total_results']
+            time.sleep(PushshiftIO.delay)
+        return content
+
     @staticmethod
     def get_all_user_content(user: str) -> str:
         content = ""
