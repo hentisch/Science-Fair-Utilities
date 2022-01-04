@@ -1,4 +1,5 @@
 import json
+from os import error
 import requests
 from random import randint
 import numpy as np
@@ -54,7 +55,7 @@ class PushshiftIO:
     
     @staticmethod
     def get_random_users(users:int) -> list:
-        return [(x.split(',')[1], x.split(',')[4], x.split(',')[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=100, min=2), "69M_reddit_accounts.csv")]
+        return [(x.split(',')[1], x.split(',')[4], x.split(',')[5]) for x in PushshiftIO.read_specific_lines(PushshiftIO.get_unique_array(length=users, max=69382539, min=2), "69M_reddit_accounts.csv")]
         #69382539 should be the max
 
     @staticmethod
@@ -64,32 +65,36 @@ class PushshiftIO:
         results = 101 
         content = []
         last_time = 0
-        while results >= 100:
-            url = f'https://api.pushshift.io/reddit/search/comment/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=body,created_utc&after={last_time}'
-            request = requests.get(url)
-            json_response = request.json()
-            last_time = json_response["data"][-1]["created_utc"]
-            content +=  [e["body"].strip("\n") for e in json_response['data']]
-            results = json_response['metadata']['total_results']
-            time.sleep(PushshiftIO.delay)
-            print("New Iter")
-        return content
+        try:
+            while results >= 100:
+                url = f'https://api.pushshift.io/reddit/search/comment/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=body,created_utc&after={last_time}'
+                request = requests.get(url)
+                json_response = request.json()
+                last_time = json_response["data"][-1]["created_utc"]
+                content +=  [e["body"].strip("\n") for e in json_response['data']]
+                results = json_response['metadata']['total_results']
+                time.sleep(PushshiftIO.delay)
+            return content
+        except IndexError:#if there is no data then last entry will be empty
+            return []
 
     @staticmethod
     def get_user_submissions(user: str) -> list:
         results = 101
         content = []
         last_time = 0
-        while results >= 100:
-            url = f'https://api.pushshift.io/reddit/search/submission/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=title,selftext,is_self,created_utc&after={last_time}'
-            request = requests.get(url)
-            json_response = request.json()
-            last_time = json_response["data"][-1]["created_utc"]
-            content += [(x["title"].strip("\n"), x.get("selftext", "").strip("\n")) for x in json_response['data'] if x["is_self"] or len(x.get("selftext", "")) > 300]            
-            results = json_response['metadata']['total_results']
-            time.sleep(PushshiftIO.delay)
-        return content
-
+        try:
+            while results >= 100:
+                url = f'https://api.pushshift.io/reddit/search/submission/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=title,selftext,is_self,created_utc&after={last_time}'
+                request = requests.get(url)
+                json_response = request.json()
+                last_time = json_response["data"][-1]["created_utc"]
+                content += [(x["title"].strip("\n"), x.get("selftext", "").strip("\n")) for x in json_response['data'] if x["is_self"] or len(x.get("selftext", "")) > 300]            
+                results = json_response['metadata']['total_results']
+                time.sleep(PushshiftIO.delay)
+            return content
+        except IndexError: 
+            return []
     @staticmethod
     def get_all_user_content(user: str) -> str:
         content = ""
@@ -97,11 +102,11 @@ class PushshiftIO:
         while len(content) <= 0:
             try:
                 for x in PushshiftIO.get_user_submissions(user):
-                    content += x[0] + "\n" + x[1] + "\n"
+                    content += x[0] + "\n" + x[1] + "\n\n"
                 for x in PushshiftIO.get_user_comments(user):
-                    content += x + "\n"
+                    content += x + "\n\n"
                 return content
-            except Exception as e:
+            except error as e:
                 PushshiftIO.total_times_limited += 1
                 content = ""
                 wait_time = 60 + (12**PushshiftIO.total_times_limited) #This will increase our wait time exponentially to avoid real rate-blocks
