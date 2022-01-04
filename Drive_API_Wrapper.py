@@ -10,7 +10,7 @@ class Drive:
         self.drive = GoogleDrive(self.gauth) 
     
     def add_file(self, title:str, content:str) -> None:
-        file1 = self.drive.CreateFile({'title': title, 'parents': [{'id': "1UAU1DdvV9QiFV8GY1MOT0jL-NJiz-XlL"}]})  # Create GoogleDriveFile instance with title 'Hello.txt'.
+        file1 = self.drive.CreateFile({'title': title, 'parents': [{'id': "1OMT-9fS3y3uuc-9WVGs6lYf-83fKbcFE"}]})  # Create GoogleDriveFile instance with title 'Hello.txt'.
         #TODO figure out a more dynamic way to do file paths from PyDrive
         file1.SetContentString(content) # Set content of the file from given string.
         file1.Upload()
