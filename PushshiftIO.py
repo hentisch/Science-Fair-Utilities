@@ -1,5 +1,6 @@
 import json
-from os import error
+from json.decoder import JSONDecodeError
+from os import error, wait
 import requests
 from random import randint
 import numpy as np
@@ -69,7 +70,15 @@ class PushshiftIO:
             while results >= 100:
                 url = f'https://api.pushshift.io/reddit/search/comment/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=body,created_utc&after={last_time}'
                 request = requests.get(url)
-                json_response = request.json()
+                try:
+                    json_response = request.json()
+                except JSONDecodeError:
+                    PushshiftIO.total_times_limited += 1
+                    wait_time = 60 + (12**PushshiftIO.total_times_limited)
+                    PushshiftIO.delay += (0.2**PushshiftIO.total_times_limited)*0.2
+                    print("Unexpected rate limit, currently waiting for " + str(wait_time) + " seconds in order to avoid longer blockage. The request delay has also been increased to " + str(PushshiftIO.delay))
+                    time.sleep(wait_time)
+                    continue
                 last_time = json_response["data"][-1]["created_utc"]
                 content +=  [e["body"].strip("\n") for e in json_response['data']]
                 results = json_response['metadata']['total_results']
@@ -87,7 +96,15 @@ class PushshiftIO:
             while results >= 100:
                 url = f'https://api.pushshift.io/reddit/search/submission/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=title,selftext,is_self,created_utc&after={last_time}'
                 request = requests.get(url)
-                json_response = request.json()
+                try:
+                    json_response = request.json()
+                except JSONDecodeError:
+                    PushshiftIO.total_times_limited += 1
+                    wait_time = 60 + (12**PushshiftIO.total_times_limited)
+                    PushshiftIO.delay += (0.2**PushshiftIO.total_times_limited)*0.2
+                    print("Unexpected rate limit, currently waiting for " + str(wait_time) + " seconds in order to avoid longer blockage. The request delay has also been increased to " + str(PushshiftIO.delay))
+                    time.sleep(wait_time)
+                    continue
                 last_time = json_response["data"][-1]["created_utc"]
                 content += [(x["title"].strip("\n"), x.get("selftext", "").strip("\n")) for x in json_response['data'] if x["is_self"] or len(x.get("selftext", "")) > 300]            
                 results = json_response['metadata']['total_results']
@@ -98,23 +115,12 @@ class PushshiftIO:
     @staticmethod
     def get_all_user_content(user: str) -> str:
         content = ""
-        times_rate_limited = 0
-        while len(content) <= 0:
-            try:
-                for x in PushshiftIO.get_user_submissions(user):
-                    content += x[0] + "\n" + x[1] + "\n\n"
-                for x in PushshiftIO.get_user_comments(user):
-                    content += x + "\n\n"
-                return content
-            except error as e:
-                PushshiftIO.total_times_limited += 1
-                content = ""
-                wait_time = 60 + (12**PushshiftIO.total_times_limited) #This will increase our wait time exponentially to avoid real rate-blocks
-                PushshiftIO.delay += (0.2**PushshiftIO.total_times_limited)*0.2
-                print("Unexpected rate limit, currently waiting for " + str(wait_time) + " seconds in order to avoid longer blockage. The request delay has also been increased to " + str(PushshiftIO.delay))
-                print("The exact error produced was :" + str(e))
-                time.sleep(wait_time) 
-                times_rate_limited += 1
+        for x in PushshiftIO.get_user_submissions(user):
+            content += x[0] + "\n" + x[1] + "\n\n"
+        for x in PushshiftIO.get_user_comments(user):
+            content += x + "\n\n"
+        return content
+
 
 if __name__ == "__main__":
     """"
