@@ -101,12 +101,13 @@ class PushshiftIO:
                 for x in PushshiftIO.get_user_comments(user):
                     content += x + "\n"
                 return content
-            except requests.exceptions.JSONDecodeError:
+            except Exception as e:
                 PushshiftIO.total_times_limited += 1
                 content = ""
                 wait_time = 60 + (12**PushshiftIO.total_times_limited) #This will increase our wait time exponentially to avoid real rate-blocks
                 PushshiftIO.delay += (0.2**PushshiftIO.total_times_limited)*0.2
                 print("Unexpected rate limit, currently waiting for " + str(wait_time) + " seconds in order to avoid longer blockage. The request delay has also been increased to " + str(PushshiftIO.delay))
+                print("The exact error produced was :" + str(e))
                 time.sleep(wait_time) 
                 times_rate_limited += 1
 
