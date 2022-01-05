@@ -70,13 +70,13 @@ class PushshiftIO:
             while results >= 100:
                 url = f'https://api.pushshift.io/reddit/search/comment/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=body,created_utc&after={last_time}'
                 request = requests.get(url)
-                try:
+                if request.status_code != 429:
                     json_response = request.json()
-                except JSONDecodeError:
+                else:
                     PushshiftIO.total_times_limited += 1
                     wait_time = 60 + (12**PushshiftIO.total_times_limited)
                     PushshiftIO.delay += (0.2**PushshiftIO.total_times_limited)*0.2
-                    print("Unexpected rate limit, currently waiting for " + str(wait_time) + " seconds in order to avoid longer blockage. The request delay has also been increased to " + str(PushshiftIO.delay))
+                    print(f"Unexpected rate limit, currently waiting for {wait_time} seconds in order to avoid longer blockage. The request delay has also been increased to {PushshiftIO.delay}")
                     time.sleep(wait_time)
                     continue
                 last_time = json_response["data"][-1]["created_utc"]
@@ -96,13 +96,13 @@ class PushshiftIO:
             while results >= 100:
                 url = f'https://api.pushshift.io/reddit/search/submission/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=title,selftext,is_self,created_utc&after={last_time}'
                 request = requests.get(url)
-                try:
+                if request.status_code != 429:
                     json_response = request.json()
-                except JSONDecodeError:
+                else:
                     PushshiftIO.total_times_limited += 1
                     wait_time = 60 + (12**PushshiftIO.total_times_limited)
                     PushshiftIO.delay += (0.2**PushshiftIO.total_times_limited)*0.2
-                    print("Unexpected rate limit, currently waiting for " + str(wait_time) + " seconds in order to avoid longer blockage. The request delay has also been increased to " + str(PushshiftIO.delay))
+                    print(f"Unexpected rate limit, currently waiting for {wait_time} seconds in order to avoid longer blockage. The request delay has also been increased to {PushshiftIO.delay}")
                     time.sleep(wait_time)
                     continue
                 last_time = json_response["data"][-1]["created_utc"]
