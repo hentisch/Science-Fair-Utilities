@@ -19,7 +19,3 @@ class Drive:
     def list_files(self) -> list:
         file_list = self.drive.ListFile({'q': "'%s' in parents and trashed=false" % self.folder_id}).GetList()
         return [x["originalFilename"] for x in file_list]
-
-if __name__ == "__main__":
-    cool = Drive()
-    print(len(cool.list_files()))
