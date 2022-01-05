@@ -7,6 +7,7 @@ import numpy as np
 import time
 from tqdm import tqdm
 
+
 class PushshiftIO:
     delay = 60 / (requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"] - 20) #This is measured in requests per minute. Due to many errors in real world use, this has been reduced to 100 requests per minute
     total_times_limited = 0
@@ -73,7 +74,7 @@ class PushshiftIO:
                 if request.status_code != 429:
                     try:
                         json_response = request.json()
-                    except JSONDecodeError:
+                    except json.JSONDecodeError:
                         time.sleep(PushshiftIO.delay)
                         continue
                 else:
@@ -103,7 +104,7 @@ class PushshiftIO:
                 if request.status_code != 429:
                     try:
                         json_response = request.json()
-                    except JSONDecodeError:
+                    except json.JSONDecodeError:
                         time.sleep(PushshiftIO.delay)
                         continue
                 else:
