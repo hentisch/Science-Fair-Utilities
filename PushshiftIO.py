@@ -71,7 +71,11 @@ class PushshiftIO:
                 url = f'https://api.pushshift.io/reddit/search/comment/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=body,created_utc&after={last_time}'
                 request = requests.get(url)
                 if request.status_code != 429:
-                    json_response = request.json()
+                    try:
+                        json_response = request.json()
+                    except JSONDecodeError:
+                        time.sleep(PushshiftIO.delay)
+                        continue
                 else:
                     PushshiftIO.total_times_limited += 1
                     wait_time = 60 + (12**PushshiftIO.total_times_limited)
@@ -97,7 +101,11 @@ class PushshiftIO:
                 url = f'https://api.pushshift.io/reddit/search/submission/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=title,selftext,is_self,created_utc&after={last_time}'
                 request = requests.get(url)
                 if request.status_code != 429:
-                    json_response = request.json()
+                    try:
+                        json_response = request.json()
+                    except JSONDecodeError:
+                        time.sleep(PushshiftIO.delay)
+                        continue
                 else:
                     PushshiftIO.total_times_limited += 1
                     wait_time = 60 + (12**PushshiftIO.total_times_limited)
