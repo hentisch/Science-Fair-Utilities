@@ -6,6 +6,7 @@ from Drive_API_Wrapper import Drive
 
 google_drive_storage = Drive()
 profile_count = int(sys.argv[1])
+print("getting past files...")
 previous_accounts = set([x[:-4] for x in google_drive_storage.list_files()])
 duplicate_accounts = 0
 
