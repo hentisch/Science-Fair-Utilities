@@ -18,4 +18,4 @@ for x, y, z in tqdm(subjects):
         google_drive_storage.add_file(f"{x}.txt", f"{x} {y} {z} \n {content}")
     else:
         duplicate_accounts += 1
-print(f"Done! In total, {profile_count - duplicate_accounts} were added.")
+print(f"Done! In total, {profile_count - duplicate_accounts} users were added.")
