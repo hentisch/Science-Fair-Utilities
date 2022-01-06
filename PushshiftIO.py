@@ -74,7 +74,7 @@ class PushshiftIO:
                 if request.status_code != 429:
                     try:
                         json_response = request.json()
-                    except json.JSONDecodeError:
+                    except ValueError:
                         time.sleep(PushshiftIO.delay)
                         continue
                 else:
@@ -104,7 +104,7 @@ class PushshiftIO:
                 if request.status_code != 429:
                     try:
                         json_response = request.json()
-                    except json.JSONDecodeError:
+                    except ValueError:
                         time.sleep(PushshiftIO.delay)
                         continue
                 else:
