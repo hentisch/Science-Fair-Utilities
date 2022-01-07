@@ -8,7 +8,7 @@ def main():
     google_drive_storage = Drive()
     profile_count = int(sys.argv[1])
     print("getting past files...")
-    previous_accounts = set([x[:-4] for x in google_drive_storage.list_files()])
+    previous_accounts = set([x[:-4] for x in google_drive_storage.list_file_names()])
     duplicate_accounts = 0
 
     print("Getting Random Users")
