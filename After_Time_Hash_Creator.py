@@ -5,6 +5,7 @@ from hashlib import sha256
 def main():
     gdrive = Drive()
     file_str = ""
+    print("Getting current list of files")
     for n, id in tqdm(gdrive.list_files()):
         checksum = sha256(gdrive.read_file(id).encode('utf-8')).hexdigest()
         file_str += (f"{n},{checksum} \n")
