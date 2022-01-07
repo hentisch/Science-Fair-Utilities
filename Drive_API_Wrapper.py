@@ -25,7 +25,8 @@ class Drive:
         return [x["id"] for x in file_list]
     
     def list_files(self) -> list:
-        pass
+        file_list = self.drive.ListFile({'q': "'%s' in parents and trashed=false" % self.folder_id}).GetList()
+        return [ (x["originalFilename"], x["id"]) for x in file_list]
     
     def read_file(self, id) -> str:
         file = self.drive.CreateFile({'id': id})
