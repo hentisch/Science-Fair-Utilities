@@ -2,6 +2,9 @@ from tqdm import tqdm
 from Drive_API_Wrapper import Drive
 from hashlib import sha256
 
+def get_hash_line(content:str, name:str)-> str:
+    return (f"{name},{sha256(content.encode('utf-8')).hexdigest()}\n")
+
 def main():
     gdrive = Drive()
     file_str = ""

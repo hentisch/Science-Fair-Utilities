@@ -16,18 +16,40 @@ class Drive:
         file1.SetContentString(content) # Set content of the file from given string.
         file1.Upload()
     
-    def list_file_names(self) -> list:
-        file_list = self.drive.ListFile({'q': "'%s' in parents and trashed=false" % self.folder_id}).GetList()
-        return [x["originalFilename"] for x in file_list]
+    def rewrite_file(self, id, content):
+        file = self.drive.CreateFile({'id': id})
+        file.SetContentString(content)
+        file.Upload()
+
+    def delete_file(self, id:str):
+        file = self.drive.CreateFile({'id': id})
+        file.Trash()
+        file.UnTrash()
+        file.Delete()
     
-    def list_file_ids(self) -> list:
+    def list_file_names(self, txt_only = True) -> list:
         file_list = self.drive.ListFile({'q': "'%s' in parents and trashed=false" % self.folder_id}).GetList()
-        return [x["id"] for x in file_list]
+        return [x["title"] for x in file_list if x["title"][-3] == "txt" or not txt_only]
     
-    def list_files(self) -> list:
+    def list_file_ids(self, txt_only=True) -> list:
         file_list = self.drive.ListFile({'q': "'%s' in parents and trashed=false" % self.folder_id}).GetList()
-        return [ (x["originalFilename"], x["id"]) for x in file_list]
+        return [x["id"] for x in file_list if x["title"][-3:] == "txt" or not txt_only]
+    
+    def list_files(self, txt_only=True) -> list:
+        file_list = self.drive.ListFile({'q': "'%s' in parents and trashed=false" % self.folder_id}).GetList()
+        return [ (x["title"], x["id"]) for x in file_list if x["title"][-3:] == "txt" or not txt_only]
+    
+    def list_files_debug(self) -> list:
+        return self.drive.ListFile({'q': "'%s' in parents and trashed=false" % self.folder_id}).GetList()
     
     def read_file(self, id) -> str:
         file = self.drive.CreateFile({'id': id})
         return file.GetContentString()
+
+    def get_csv_id(self) -> str:
+        file_list = self.drive.ListFile({'q': "'%s' in parents and trashed=false" % self.folder_id}).GetList()
+        return [x["id"] for x in file_list if x["title"][-3:] == "csv"][0]
+
+if __name__ == "__main__":
+    gdrive = Drive(folder_id="1tnhjKsh_wmRg1wsL0AABumsqzpfP76G-")
+    print(gdrive.list_file_names())
