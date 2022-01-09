@@ -1,7 +1,7 @@
 from Drive_API_Wrapper import Drive
 
 def main():
-    gdrive = Drive(folder_id="1tnhjKsh_wmRg1wsL0AABumsqzpfP76G-")
+    gdrive = Drive()
 
     try:
         with open("checksum_backup.csv", "r") as backup:
