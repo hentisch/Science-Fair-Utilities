@@ -44,7 +44,7 @@ def main():
         csv_id = gdrive.get_csv_id()
         checksum_string = gdrive.read_file(csv_id) + checksum_string
         gdrive.rewrite_file(csv_id, checksum_string)
-    except:
+    except IndexError:
         gdrive.add_file("checksums.csv", checksum_string)
     checksum_backup.writelines("success\n")
     print(f"Done! In total, {profile_count - duplicate_accounts} users were added.")
