@@ -6,7 +6,6 @@ def main():
     try:
         with open("checksum_backup.csv", "r") as backup:
             backup_str = backup.read()
-            print(backup_str.split("\n"))
             if backup_str.split("\n")[-2] == "success" and input("This upload appears to have been successful, please type y if you are SURE you would like to continue (not reccomended): ").lower() != "y":
                 quit()
         csv_id = gdrive.get_csv_id()
