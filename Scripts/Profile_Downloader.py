@@ -35,7 +35,6 @@ def main():
         counter+= 1
         if counter % 100 == 0 and counter < len(subjects) and counter > 0:
             time.sleep(70)
-            print("sleeping....")
         if not (x in previous_accounts):
             content = PushshiftIO.get_all_user_content(x)
             file_text = f"{x} {y} {z} \n {content}"
