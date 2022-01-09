@@ -9,7 +9,6 @@ from After_Time_Hash_Creator import get_hash_line
 def main():
     try:
         stats_file = open(sys.argv[2], "a")
-        print(sys.argv)
     except IndexError:
         try:
             stats_file = open("karma-length_stats.csv", "r")
