@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 
 class PushshiftIO:
-    delay = ( 60 / (requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"]) ) * 2 #This is measured in requests per minute. Due to many errors in real world use, this has been reduced to 100 requests per minute
+    delay = ( 60 / (requests.get("https://api.pushshift.io/meta").json()["server_ratelimit_per_minute"]) ) * 1.4 #This is measured in requests per minute. Due to many errors in real world use, this has been reduced to 100 requests per minute
     total_times_limited = 0
 
 
@@ -69,13 +69,13 @@ class PushshiftIO:
         last_time = 0
         try:
             while results >= 100:
+                time.sleep(PushshiftIO.delay)
                 url = f'https://api.pushshift.io/reddit/search/comment/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=body,created_utc&after={last_time}'
                 request = requests.get(url)
                 if request.status_code != 429:
                     try:
                         json_response = request.json()
                     except ValueError:
-                        time.sleep(PushshiftIO.delay)
                         continue
                 else:
                     PushshiftIO.total_times_limited += 1
@@ -87,7 +87,6 @@ class PushshiftIO:
                 last_time = json_response["data"][-1]["created_utc"]
                 content +=  [e["body"].strip("\n") for e in json_response['data']]
                 results = json_response['metadata']['total_results']
-                time.sleep(PushshiftIO.delay)
             return content
         except IndexError:#if there is no data then last entry will be empty
             return []
@@ -99,13 +98,13 @@ class PushshiftIO:
         last_time = 0
         try:
             while results >= 100:
+                time.sleep(PushshiftIO.delay)
                 url = f'https://api.pushshift.io/reddit/search/submission/?author={user}&frequency="second"&metadata=true&sort=asc&size=100&fields=title,selftext,is_self,created_utc&after={last_time}'
                 request = requests.get(url)
                 if request.status_code != 429:
                     try:
                         json_response = request.json()
                     except ValueError:
-                        time.sleep(PushshiftIO.delay)
                         continue
                 else:
                     PushshiftIO.total_times_limited += 1
@@ -117,9 +116,8 @@ class PushshiftIO:
                 last_time = json_response["data"][-1]["created_utc"]
                 content += [(x["title"].strip("\n"), x.get("selftext", "").strip("\n")) for x in json_response['data'] if x["is_self"] or len(x.get("selftext", "")) > 300]            
                 results = json_response['metadata']['total_results']
-                time.sleep(PushshiftIO.delay)
             return content
-        except IndexError: 
+        except IndexError:
             return []
     @staticmethod
     def get_all_user_content(user: str) -> str:

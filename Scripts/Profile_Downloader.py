@@ -1,10 +1,12 @@
 from re import sub
+from typing import Counter
 from PushshiftIO import PushshiftIO
 import sys
 from tqdm import tqdm
 from Drive_API_Wrapper import Drive
 from Karma_Correlation_Finder import Stats_File_Creator
 from After_Time_Hash_Creator import get_hash_line
+import time
 
 def main():
     try:
@@ -29,7 +31,11 @@ def main():
     print("Getting Random Users")
     subjects = PushshiftIO.get_random_users(profile_count)
     print("Getting Data For Selected Users")
+    counter = 0
     for x, y, z in tqdm(subjects):
+        counter += 1
+        if counter % 100 == 0 and counter < len(subjects) and counter > 0:
+            time.sleep(70)
         if not (x in previous_accounts):
             content = PushshiftIO.get_all_user_content(x)
             file_text = f"{x} {y} {z} \n {content}"
