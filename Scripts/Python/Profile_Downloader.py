@@ -22,6 +22,7 @@ def main():
     profile_count = int(sys.argv[1])
     print("getting past files...")
     previous_accounts = set([x[:-4] for x in gdrive.list_file_names()])
+    print(f"So far, you have {len(previous_accounts)} users in your dataset")
     duplicate_accounts = 0
     checksum_string = ""
     checksum_backup = open("checksum_backup.csv", "w")
