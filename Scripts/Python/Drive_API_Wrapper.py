@@ -29,7 +29,9 @@ class Drive:
     
     def list_file_names(self, txt_only = True) -> list:
         file_list = self.drive.ListFile({'q': "'%s' in parents and trashed=false" % self.folder_id}).GetList()
-        return [x["title"] for x in file_list if x["title"][-3] == "txt" or not txt_only]
+        print(len(file_list))
+        for y in file_list: print(y["title"])
+        return [x["title"] for x in file_list if x["title"][-3:] == "txt" or not txt_only]
     
     def list_file_ids(self, txt_only=True) -> list:
         file_list = self.drive.ListFile({'q': "'%s' in parents and trashed=false" % self.folder_id}).GetList()

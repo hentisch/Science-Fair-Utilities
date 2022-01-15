@@ -18,7 +18,7 @@ def main():
             stats_file = open("karma-length_stats.csv", "w")
             stats_file.writelines("User,Comment Karma,Submission Karma,Total Words,Total Characters (not including spaces)\n")
 
-    gdrive = Drive()
+    gdrive = Drive(folder_id="1K_t7Z4Z9M-jOYSKS-XjCSdEVPRjkwKkU")
     profile_count = int(sys.argv[1])
     print("getting past files...")
     previous_accounts = set([x[:-4] for x in gdrive.list_file_names()])
