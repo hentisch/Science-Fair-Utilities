@@ -1,19 +1,48 @@
+#code largely divided from https://computationalstylistics.github.io/docs/imposters
+
 # activating the package
 library(stylo)
 
 # setting a working directory that contains the corpus, e.g.
-setwd("/home/henry/Documents/Code/Faffing (Totally useless)/A_Small_Collection_Of_Books")
+setwd("/home/henry/Documents/Code/Open_Source/Science-Fair-Utilities/Scripts/R/Downloader")
 
 # loading the files from a specified directory:
-tokenized.texts = load.corpus.and.parse(files = "all")
+tokenized.texts <- load.corpus.and.parse(files = "all")
 
 # computing a list of most frequent words (trimmed to top 2000 items):
-features = make.frequency.list(tokenized.texts, head = 2000)
+features <- make.frequency.list(tokenized.texts, head = 100)
+#This computation only needs to be done once, and generates the vectors actually used.
 
 # producing a table of relative frequencies:
-data = make.table.of.frequencies(tokenized.texts, features, relative = TRUE)
+data <- make.table.of.frequencies(tokenized.texts, features, relative = TRUE)
 
-print(data)
+settings <- stylo.default.settings()
+
+results <- data.frame(matrix(nrow = 0, ncol = 4))
+
+colnames(results) <- c("user", "is_perfect", "position", "users_considered")
+
+#Note that R automatically wraps the table, but each author only has one row
 
 # who wrote "Pride and Prejudice"? (in my case, this is the 4th row in the table):
-imposters(reference.set = data[-c(3),], test = data[1,])
+print(nrow(data))
+print("Iterating")
+counter <- 0
+for(n in 1:nrow(data))
+{
+    if(n == 1)
+    {
+        n <- imposters(reference.set = data[2:nrow(data),], test = data[n,], distance = "wurzburg", features = 1.0, imposters = 1.0)
+    }
+    else if(n == nrow(data))
+    {
+        n <- imposters(reference.set = data[1:nrow(data)-1], test = data[n,], distance = "wurzburg", features = 1.0, imposters = 1.0)
+    }
+    else {
+        n <- imposters(reference.set = rbind(data[1:n-1], data[n+1:nrow(data)]), test = data[n,], distance= "wurzburg", features = 1.0, imposters = 1.0)  
+    }
+    print(n)
+}
+print("Done Iterating")
+
+print(n["Griffs"])
