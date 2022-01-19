@@ -2,6 +2,7 @@
 
 # activating the package
 library(stylo)
+library(dplyr)
 
 # setting a working directory that contains the corpus, e.g.
 setwd("/home/henry/Documents/Code/Open_Source/Science-Fair-Utilities/Scripts/R/Downloader")
@@ -26,22 +27,15 @@ colnames(results) <- c("user", "is_perfect", "position", "users_considered")
 
 # who wrote "Pride and Prejudice"? (in my case, this is the 4th row in the table):
 print(nrow(data))
+print(str(class(data)))
 print("Iterating")
-counter <- 0
-for(n in 1:nrow(data))
+for(n in seq_along(data))
 {
-    if(n == 1)
+    if (n == 0 | n == rows)
     {
-        n <- imposters(reference.set = data[2:nrow(data),], test = data[n,], distance = "wurzburg", features = 1.0, imposters = 1.0)
+        continue
     }
-    else if(n == nrow(data))
-    {
-        n <- imposters(reference.set = data[1:nrow(data)-1], test = data[n,], distance = "wurzburg", features = 1.0, imposters = 1.0)
-    }
-    else {
-        n <- imposters(reference.set = rbind(data[1:n-1], data[n+1:nrow(data)]), test = data[n,], distance= "wurzburg", features = 1.0, imposters = 1.0)  
-    }
-    print(n)
+    al <- imposters(reference.set = data[1:n-1,] + data[n+1: nrow(data),], test = data[n,], distance = "wurzburg", features = 1.0, imposters = 1.0)
 }
 print("Done Iterating")
 
