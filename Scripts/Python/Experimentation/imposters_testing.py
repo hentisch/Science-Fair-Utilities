@@ -19,16 +19,17 @@ def crop_series(series, n:int):
 def main():
     try:
         with open("distances.pickle", "rb") as f:
-            print("Correlation matrix found, loading...")
+            print("Feature matrix found, loading...")
             raw_corpus = pkl.load(f)
     except FileNotFoundError:
-        print("Correlation matrix not found, creating...")
-        raw_corpus = delta.Corpus(sys.argv[1], ngrams=2) #As this is the most computationally instensive step, we only want to do it once
-        with open("distances.pickle", "wb") as f:
-            pkl.dump(raw_corpus, f)
-    except IndexError:
-        print("Python3 imposterts_testing.py <path to directory> -c/none")
-        quit()
+        try:
+            print("Correlation matrix not found, creating...")
+            raw_corpus = delta.Corpus(sys.argv[1], ngrams=2) #As this is the most computationally instensive step, we only want to do it once
+            with open("distances.pickle", "wb") as f:
+                pkl.dump(raw_corpus, f)
+        except IndexError:
+            print("Python3 imposterts_testing.py <path to directory> -c/none")
+            quit()
     
     try:
         if sys.argv[2] == "-c":
