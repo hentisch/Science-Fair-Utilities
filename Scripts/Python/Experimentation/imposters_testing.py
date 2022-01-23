@@ -36,8 +36,6 @@ def main():
                 trimmed_corpus = raw_corpus.cull(1/3)
                 with open(f"feature-matrices({sys.argv[2]}-gram)/distances-{i+1}.pickle", "wb") as f:
                     pkl.dump(trimmed_corpus, f)
-                tqdm.update(1)
-                print(x)
                 pbar.update(1)
     except IndexError:
         print("Python3 imposterts_testing.py <path to directory> <ngram count> -c/none")
