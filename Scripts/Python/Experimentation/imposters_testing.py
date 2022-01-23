@@ -2,6 +2,8 @@ import pickle as pkl
 import delta
 import sys
 import pandas as pd
+from tqdm import tqdm
+import os
 #http://dev.digital-humanities.de/ci/job/pydelta-next/Documentation/GettingStarted.html
 def truncate_collumns(sheet, n:int):
     for i, x in enumerate(sheet.columns):
@@ -18,15 +20,19 @@ def crop_series(series, n:int):
 
 def main():
     try:
+        os.listdir("feature-matrices") # This just checks if the directory exists, TODO implment the tests to run on each matrix
         with open("distances.pickle", "rb") as f:
             print("Feature matrix found, loading...")
             raw_corpus = pkl.load(f)
     except FileNotFoundError:
         try:
-            print("Correlation matrix not found, creating...")
-            raw_corpus = delta.Corpus(sys.argv[1], ngrams=2) #As this is the most computationally instensive step, we only want to do it once
-            with open("distances.pickle", "wb") as f:
-                pkl.dump(raw_corpus, f)
+            print("Feature matrices not found, creating...")
+            os.mkdir("feature-matrices")
+            for i, x in enumerate(tqdm(os.listdir(sys.argv[1]))):
+                raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=2) #As this is the most computationally instensive step, we only want to do it once
+                trimmed_corpus = raw_corpus.cull(1/3)
+                with open(f"feature-matrices/distances-{i+1}.pickle", "wb") as f:
+                    pkl.dump(trimmed_corpus, f)
         except IndexError:
             print("Python3 imposterts_testing.py <path to directory> -c/none")
             quit()
