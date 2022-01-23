@@ -1,4 +1,3 @@
-from multiprocessing.dummy import current_process
 import pickle as pkl
 import delta
 import sys
