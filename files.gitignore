@@ -2,3 +2,4 @@
 __pycache__/
 final_results.csv
 client_secrets.json
+env/
