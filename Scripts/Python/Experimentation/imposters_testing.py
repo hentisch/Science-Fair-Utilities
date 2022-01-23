@@ -27,10 +27,9 @@ def main():
         print("Feature matrices not found, creating...")
         os.mkdir(f"feature-matrices({sys.argv[2]}-gram)")
         for i, x in enumerate(tqdm(os.listdir(sys.argv[1]))):
-            print(sys.argv[1])
             raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=2) #As this is the most computationally instensive step, we only want to do it once
             trimmed_corpus = raw_corpus.cull(1/3)
-            with open(f"feature-matrices/distances-{i+1}.pickle", "wb") as f:
+            with open(f"feature-matrices({sys.argv[2]}-gram)/distances-{i+1}.pickle", "wb") as f:
                 pkl.dump(trimmed_corpus, f)
     except IndexError:
         print("Python3 imposterts_testing.py <path to directory> <ngram count> -c/none")
