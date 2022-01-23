@@ -27,7 +27,7 @@ def main():
         print("Feature matrices not found, creating...")
         os.mkdir("feature-matrices")
         for i, x in enumerate(tqdm(os.listdir(sys.argv[1]))):
-            raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=1) #As this is the most computationally instensive step, we only want to do it once
+            raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=int(sys.argv[2])) #As this is the most computationally instensive step, we only want to do it once
             trimmed_corpus = raw_corpus.cull(1/3)
             with open(f"feature-matrices/distances-{i+1}.pickle", "wb") as f:
                 pkl.dump(trimmed_corpus, f)
