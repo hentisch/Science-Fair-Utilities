@@ -17,25 +17,23 @@ def crop_series(series, n:int):
             series.drop(x, axis=1, inplace=True)
     return series
 
-
 def main():
     try:
-        os.listdir("feature-matrices") # This just checks if the directory exists, TODO implment the tests to run on each matrix
+        os.listdir(f"feature-matrices({sys.argv[2]}-gram)") # This just checks if the directory exists, TODO implment the tests to run on each matrix
         with open("distances.pickle", "rb") as f:
             print("Feature matrix found, loading...")
             raw_corpus = pkl.load(f)
     except FileNotFoundError:
-        try:
-            print("Feature matrices not found, creating...")
-            os.mkdir("feature-matrices")
-            for i, x in enumerate(tqdm(os.listdir(sys.argv[1]))):
-                raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=1) #As this is the most computationally instensive step, we only want to do it once
-                trimmed_corpus = raw_corpus.cull(1/3)
-                with open(f"feature-matrices/distances-{i+1}.pickle", "wb") as f:
-                    pkl.dump(trimmed_corpus, f)
-        except IndexError:
-            print("Python3 imposterts_testing.py <path to directory> <ngram count> -c/none")
-            quit()
+        print("Feature matrices not found, creating...")
+        os.mkdir("feature-matrices")
+        for i, x in enumerate(tqdm(os.listdir(sys.argv[1]))):
+            raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=1) #As this is the most computationally instensive step, we only want to do it once
+            trimmed_corpus = raw_corpus.cull(1/3)
+            with open(f"feature-matrices/distances-{i+1}.pickle", "wb") as f:
+                pkl.dump(trimmed_corpus, f)
+    except IndexError:
+        print("Python3 imposterts_testing.py <path to directory> <ngram count> -c/none")
+        quit()
     
     try:
         if sys.argv[3] == "-c":
