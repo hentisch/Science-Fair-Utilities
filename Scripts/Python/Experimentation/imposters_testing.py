@@ -29,16 +29,16 @@ def main():
             print("Feature matrices not found, creating...")
             os.mkdir("feature-matrices")
             for i, x in enumerate(tqdm(os.listdir(sys.argv[1]))):
-                raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=2) #As this is the most computationally instensive step, we only want to do it once
+                raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=1) #As this is the most computationally instensive step, we only want to do it once
                 trimmed_corpus = raw_corpus.cull(1/3)
                 with open(f"feature-matrices/distances-{i+1}.pickle", "wb") as f:
                     pkl.dump(trimmed_corpus, f)
         except IndexError:
-            print("Python3 imposterts_testing.py <path to directory> -c/none")
+            print("Python3 imposterts_testing.py <path to directory> <ngram count> -c/none")
             quit()
     
     try:
-        if sys.argv[2] == "-c":
+        if sys.argv[3] == "-c":
             quit()
     except IndexError:
         pass
