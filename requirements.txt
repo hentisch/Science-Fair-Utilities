@@ -3,3 +3,4 @@ pandas
 numpy
 tqdm
 PyDrive
+git+https://github.com/cophi-wue/pydelta@next
