@@ -56,7 +56,7 @@ def main():
         source_directory = os.listdir(sys.argv[1])
         absent_corpera = [x for x in source_directory if get_int_in_str(x) not in [get_int_in_str(y) for y in current_progress]]
 
-        for i, x in enumerate(absent_corpera):
+        for i, x in enumerate(tqdm(absent_corpera)):
             raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=int(sys.argv[2])) #As this is the most computationally instensive step, we only want to do it once
             trimmed_corpus = raw_corpus.cull(1/3)
             with open(f"feature-matrices({sys.argv[2]}-gram)/features-{i+1+min(absent_corpera, key= lambda x: get_int_in_str(x))}.pickle", "wb") as f:
