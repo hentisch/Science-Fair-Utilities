@@ -42,7 +42,7 @@ def main():
     except FileNotFoundError:   
         pass
     except IndexError:
-        print("Python3 imposterts_testing.py <path to directory> <ngram count> -c/none")
+        print("Python3 imposters_testing.py <path to directory> <ngram count> -c/none")
         quit()
 
     if not complete_features:
@@ -63,7 +63,7 @@ def main():
             with open(f"feature-matrices({sys.argv[2]}-gram)/features-{str(i+1+next_corpus)}.pickle", "wb") as f:
                 pkl.dump(trimmed_corpus, f)
     
-    if "-c" in sys.argv:
+    if "-f" in sys.argv:
         quit()
 
     #This block creats the distance matrices for each corpus
@@ -87,6 +87,10 @@ def main():
         
         print("Distances computed!!!")
     
+    if "-d" in sys.argv:
+        quit()
+    
+    #This block does the actuall testing
     distances_matrices = []
     for x in sort_feature_matrices(os.listdir(f"distance-matrices/{sys.argv[2]}-gram")):
         distances_matrices.append(load_from_pickle(f"distance-matrices/{sys.argv[2]}-gram/{x}"))
@@ -100,6 +104,7 @@ def main():
                     df.drop(x, inplace=True) #In our correlation matrix, the author will ALWAYS be the first column, as the distance between x and x is 0
                     authors = list(df.index.values)
                     f.writelines(f"{x},{authors.index('#TS#' + x)},")
+
     """
     with open("results.csv", "w") as f:
         for x in distances.columns:
