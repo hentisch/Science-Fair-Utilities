@@ -1,3 +1,4 @@
+from copyreg import pickle
 import pickle as pkl
 import delta
 import sys
@@ -17,12 +18,23 @@ def crop_series(series, n:int):
             series.drop(x, axis=1, inplace=True)
     return series
 
+def load_from_pickle(file:str):
+    with open(file, "rb") as f:
+        return pkl.load(f)
+
+def get_int_in_str(seq:str):
+    nums = [int(x) for x in seq if x.isdigit()]
+    int_rep = 0
+    for i, x in enumerate(reversed(nums)):
+      int_rep += x*10**(i)
+    return int_rep
+
+def sort_feature_matrices(arr:list):
+    return sorted(arr, key= lambda x: get_int_in_str(x), reverse=False)
+
 def main():
     try:
         os.listdir(f"feature-matrices({sys.argv[2]}-gram)") # This just checks if the directory exists, TODO implment the tests to run on each matrix
-        with open("distances.pickle", "rb") as f:
-            print("Feature matrix found, loading...")
-            raw_corpus = pkl.load(f)
     except FileNotFoundError:
         print("Feature matrices not found, creating...")
         try:
@@ -31,7 +43,7 @@ def main():
             pass
         current_progress = len(os.listdir(f"feature-matrices({sys.argv[2]}-gram)"))
         with tqdm(total=len(os.listdir(sys.argv[1])), initial=current_progress) as pbar:
-            for i, x in enumerate(sorted(os.listdir(sys.argv[1]), key=lambda x: int(x[x.index("-"):]), reverse=True)):
+            for i, x in enumerate(sort_feature_matrices(os.listdir(sys.argv[1]))):
                 raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=2) #As this is the most computationally instensive step, we only want to do it once
                 trimmed_corpus = raw_corpus.cull(1/3)
                 with open(f"feature-matrices({sys.argv[2]}-gram)/distances-{i+1}.pickle", "wb") as f:
@@ -48,15 +60,25 @@ def main():
         pass
 
     #This corpus is, in practice, a pandas dataframe that we can view and manipulate
-    culled_corpus = raw_corpus.cull(1/3)
-    print(culled_corpus.shape)
-    culled_corpus = truncate_collumns(culled_corpus, 100)
-    print(culled_corpus.shape)
-    print(culled_corpus.head(10))
-    print("-----------------------------------------------------")
-    distances = delta.functions.cosine_delta(culled_corpus) #NOTE COSINE DELTA IS THE DISTANCE, NOT THE SIMILARITY
-    print(distances.shape)
-    print(distances.head(n = 34))
+    corpera = [load_from_pickle(f"feature-matrices({sys.argv[2]}-gram)/{x}") for x in sort_feature_matrices(os.listdir(f"feature-matrices({sys.argv[2]}-gram)"))]
+    print("All dataframes loaded")
+    
+    print("Computing distances....")
+
+    for x in ["distance-matrices", f"distance-matrices/{sys.argv[2]}-gram"]:
+        try:
+            os.mkdir(x)
+        except FileExistsError:
+            pass
+
+    for i, x in enumerate(tqdm(corpera)):
+        with open(f"distance-matrices/{sys.argv[2]}-gram/distances-{i+1}.pickle", "wb") as f:
+            distances = delta.functions.cosine_delta(x)
+            pkl.dump(distances, f)
+    
+    print("Distances computed!!!")
+    
+    """
     with open("results.csv", "w") as f:
         for x in distances.columns:
             if x[:4] != "#TS#":
@@ -65,6 +87,7 @@ def main():
                 df.drop(x, inplace=True) #In our correlation matrix, the author will ALWAYS be the first column, as the distance between x and x is 0
                 authors = list(df.index.values)
                 print(authors.index("#TS#" + x))
+    """
 if __name__ == "__main__":
     main()
 
