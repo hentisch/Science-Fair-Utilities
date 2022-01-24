@@ -34,34 +34,16 @@ def sort_feature_matrices(arr:list):
 
 def main():
     #This block creates the feature matrices
-    complete_features = False
 
-    try:
-        files = os.listdir(f"feature-matrices({sys.argv[2]}-gram)") # This just checks if the directory exists, TODO implment the tests to run on each matrix
-        complete_features = len(files) == len(sys.argv[1])
-    except FileNotFoundError:   
-        pass
-    except IndexError:
-        print("Python3 imposters_testing.py <path to directory> <ngram count> -c/none")
-        quit()
+    current_progress = os.listdir(f"feature-matrices({sys.argv[2]}-gram)")
+    source_directory = os.listdir(sys.argv[1])
+    absent_corpera = [x for x in source_directory if get_int_in_str(x) not in [get_int_in_str(y) for y in current_progress]]
 
-    if not complete_features:
-        print("Feature matrices not found, creating...")
-        try:
-            os.mkdir(f"feature-matrices({sys.argv[2]}-gram)")
-        except FileExistsError:
-            pass
-
-        current_progress = os.listdir(f"feature-matrices({sys.argv[2]}-gram)")
-        source_directory = os.listdir(sys.argv[1])
-        absent_corpera = [x for x in source_directory if get_int_in_str(x) not in [get_int_in_str(y) for y in current_progress]]
-
-        for i, x in enumerate(tqdm(absent_corpera)):
-            raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=int(sys.argv[2])) #As this is the most computationally instensive step, we only want to do it once
-            trimmed_corpus = raw_corpus.cull(1/3)
-            next_corpus = get_int_in_str(min(absent_corpera, key= lambda x: get_int_in_str(x)))
-            with open(f"feature-matrices({sys.argv[2]}-gram)/features-{str(i+1+next_corpus)}.pickle", "wb") as f:
-                pkl.dump(trimmed_corpus, f)
+    for i, x in enumerate(tqdm(absent_corpera)):
+        raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=int(sys.argv[2])) #As this is the most computationally instensive step, we only want to do it once
+        trimmed_corpus = raw_corpus.cull(1/3)
+        with open(f"feature-matrices({sys.argv[2]}-gram)/features-{str(get_int_in_str(x))}.pickle", "wb") as f:
+            pkl.dump(trimmed_corpus, f)
     
     if "-f" in sys.argv:
         quit()
