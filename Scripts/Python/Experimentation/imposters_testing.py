@@ -5,6 +5,7 @@ import sys
 import pandas as pd
 from tqdm import tqdm
 import os
+from math import ceil
 #http://dev.digital-humanities.de/ci/job/pydelta-next/Documentation/GettingStarted.html
 def truncate_collumns(sheet, n:int):
     for i, x in enumerate(sheet.columns):
@@ -77,19 +78,42 @@ def main():
         quit()
     
     #This block does the actuall testing
-    distances_matrices = []
-    for x in sort_feature_matrices(os.listdir(f"distance-matrices/{sys.argv[2]}-gram")):
-        distances_matrices.append(load_from_pickle(f"distance-matrices/{sys.argv[2]}-gram/{x}"))
-    with open("results.csv", "w") as f:
-        f.writelines("author,position,corpus")
-        for p, c in enumerate(distances_matrices):
+    for x in ["experiment-results", f"experiment-results/{sys.argv[2]}-gram", f"experiment-results/{sys.argv[2]}-gram/cosine_delta",f"experiment-results/{sys.argv[2]}-gram/burrows"]:
+        try:
+            os.mkdir(x)
+        except FileExistsError:
+            pass
+    
+    distances_matrices_cosine = [pd.read_pickle(f"distance-matrices/{sys.argv[2]}-gram/cosine_delta/" + x) for x in sort_feature_matrices(os.listdir(f"distance-matrices/{sys.argv[2]}-gram/cosine_delta/"))]
+    distances_matrices_burrows = [pd.read_pickle(f"distance-matrices/{sys.argv[2]}-gram/burrows/" + x) for x in sort_feature_matrices(os.listdir(f"distance-matrices/{sys.argv[2]}-gram/burrows/"))]
+
+    with open(f"experiment-results/{sys.argv[2]}-gram/cosine_delta/results.csv", "w") as f:
+        f.writelines("author,position,corpus\n")
+        for p, c in enumerate(tqdm(distances_matrices_cosine)):
             for x in c.columns:
                 if x[:4] != "#TS#":
-                    df = distances[x]
+                    df = c[x]
                     df = df.sort_values(ascending=True)
                     df.drop(x, inplace=True) #In our correlation matrix, the author will ALWAYS be the first column, as the distance between x and x is 0
                     authors = list(df.index.values)
-                    f.writelines(f"{x},{authors.index('#TS#' + x)},")  
+                    f.writelines(f"{x},{ceil((authors.index('#TS#' + x)+2) / 2)},{p+1}\n")  
+                    #We add one value to the index to account for the difference between counting systems, and then one to 
+                    #account for the lost inital value, so we can divide by two, which is neccisary to consider each user
+                    #as distinct and not 
+
+    with open(f"experiment-results/{sys.argv[2]}-gram/burrows/results.csv", "w") as f:
+        f.writelines("author,position,corpus\n")
+        for p, c in enumerate(tqdm(distances_matrices_burrows)):
+            for x in c.columns:
+                if x[:4] != "#TS#":
+                    df = c[x]
+                    df = df.sort_values(ascending=True)
+                    df.drop(x, inplace=True) #In our correlation matrix, the author will ALWAYS be the first column, as the distance between x and x is 0
+                    authors = list(df.index.values)
+                    f.writelines(f"{x},{ceil((authors.index('#TS#' + x)+2) / 2)},{p+1}\n")  
+                    #We add one value to the index to account for the difference between counting systems, and then one to 
+                    #account for the lost inital value, so we can divide by two, which is neccisary to consider each user
+                    #as distinct and not 
     """
     with open("results.csv", "w") as f:
         for x in distances.columns:
