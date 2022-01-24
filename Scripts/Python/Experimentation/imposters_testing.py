@@ -74,17 +74,21 @@ def main():
         print("All dataframes loaded")
         
         print("Computing distances....")
-        for x in ["distance-matrices", f"distance-matrices/{sys.argv[2]}-gram"]:
+        for x in ["distance-matrices", f"distance-matrices/{sys.argv[2]}-gram", f"distance-matrices/{sys.argv[2]}-gram/cosine_delta", f"distance-matrices/{sys.argv[2]}-gram/burrows"]:
             try:
                 os.mkdir(x)
             except FileExistsError:
                 pass
         
         for i, x in enumerate(tqdm(corpera)):
-            with open(f"distance-matrices/{sys.argv[2]}-gram/distances-{i+1}.pickle", "wb") as f:
+            with open(f"distance-matrices/{sys.argv[2]}-gram/cosine_delta/distances-{i+1}.pickle", "wb") as f:
                 distances = delta.functions.cosine_delta(x)
                 pkl.dump(distances, f)
-        
+            with open(f"distance-matrices/{sys.argv[2]}-gram/burrows/distances-{i+1}.pickle", "wb") as f:
+                distances = delta.functions.burrows(x)
+                pkl.dump(distances, f)
+        #Note that both of these measures are thsoe of DISTANCE, not similarity
+
         print("Distances computed!!!")
     
     if "-d" in sys.argv:
@@ -103,8 +107,7 @@ def main():
                     df = df.sort_values(ascending=True)
                     df.drop(x, inplace=True) #In our correlation matrix, the author will ALWAYS be the first column, as the distance between x and x is 0
                     authors = list(df.index.values)
-                    f.writelines(f"{x},{authors.index('#TS#' + x)},")
-
+                    f.writelines(f"{x},{authors.index('#TS#' + x)},")  
     """
     with open("results.csv", "w") as f:
         for x in distances.columns:
