@@ -1,5 +1,6 @@
 from copyreg import pickle
 import pickle as pkl
+from turtle import distance
 import delta
 import sys
 import pandas as pd
@@ -65,10 +66,16 @@ def main():
         
         for i, x in enumerate(tqdm(corpera)):
             with open(f"distance-matrices/{sys.argv[2]}-gram/cosine_delta/distances-{i+1}.pickle", "wb") as f:
-                distances = delta.functions.cosine_delta(x)
+                if "-c" in sys.argv:
+                    distances = delta.functions.cosine_delta(truncate_collumns(x, int(sys.argv[sys.argv.index("-c")+1])))
+                else:
+                    distances = delta.functions.cosine_delta(x)
                 pkl.dump(distances, f)
             with open(f"distance-matrices/{sys.argv[2]}-gram/burrows/distances-{i+1}.pickle", "wb") as f:
-                distances = delta.functions.burrows(x)
+                if "-c" in sys.argv:
+                    distances = delta.functions.burrows(truncate_collumns(x, int(sys.argv[sys.argv.index("-c")+1])))
+                else:
+                    distances = delta.functions.burrows(x)
                 pkl.dump(distances, f)
         #Note that both of these measures are thsoe of DISTANCE, not similarity
 
