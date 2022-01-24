@@ -33,20 +33,24 @@ def sort_feature_matrices(arr:list):
     return sorted(arr, key= lambda x: get_int_in_str(x), reverse=False)
 
 def main():
+    #This block creates the feature matrices
     try:
         os.listdir(f"feature-matrices({sys.argv[2]}-gram)") # This just checks if the directory exists, TODO implment the tests to run on each matrix
     except FileNotFoundError:
         print("Feature matrices not found, creating...")
+
         try:
             os.mkdir(f"feature-matrices({sys.argv[2]}-gram)")
         except FileExistsError:
             pass
+
         current_progress = len(os.listdir(f"feature-matrices({sys.argv[2]}-gram)"))
+
         with tqdm(total=len(os.listdir(sys.argv[1])), initial=current_progress) as pbar:
             for i, x in enumerate(sort_feature_matrices(os.listdir(sys.argv[1]))):
-                raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=2) #As this is the most computationally instensive step, we only want to do it once
+                raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=sys.argv[2]) #As this is the most computationally instensive step, we only want to do it once
                 trimmed_corpus = raw_corpus.cull(1/3)
-                with open(f"feature-matrices({sys.argv[2]}-gram)/disatnces-{i+1}.pickle", "wb") as f:
+                with open(f"feature-matrices({sys.argv[2]}-gram)/features-{i+1}.pickle", "wb") as f:
                     pkl.dump(trimmed_corpus, f)
                 pbar.update(1)
     except IndexError:
@@ -59,6 +63,7 @@ def main():
     except IndexError:
         pass
 
+    #This block 
     try:
         os.listdir(f"distance-matrices/{sys.argv[2]}-gram")
     except FileNotFoundError:
