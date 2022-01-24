@@ -46,7 +46,7 @@ def main():
             for i, x in enumerate(sort_feature_matrices(os.listdir(sys.argv[1]))):
                 raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=2) #As this is the most computationally instensive step, we only want to do it once
                 trimmed_corpus = raw_corpus.cull(1/3)
-                with open(f"feature-matrices({sys.argv[2]}-gram)/distances-{i+1}.pickle", "wb") as f:
+                with open(f"feature-matrices({sys.argv[2]}-gram)/disatnces-{i+1}.pickle", "wb") as f:
                     pkl.dump(trimmed_corpus, f)
                 pbar.update(1)
     except IndexError:
@@ -59,24 +59,28 @@ def main():
     except IndexError:
         pass
 
-    #This corpus is, in practice, a pandas dataframe that we can view and manipulate
-    corpera = [load_from_pickle(f"feature-matrices({sys.argv[2]}-gram)/{x}") for x in sort_feature_matrices(os.listdir(f"feature-matrices({sys.argv[2]}-gram)"))]
-    print("All dataframes loaded")
-    
-    print("Computing distances....")
+    try:
+        os.listdir(f"distance-matrices/{sys.argv[2]}-gram")
+    except FileNotFoundError:
+        corpera = [load_from_pickle(f"feature-matrices({sys.argv[2]}-gram)/{x}") for x in sort_feature_matrices(os.listdir(f"feature-matrices({sys.argv[2]}-gram)"))]
+        print("All dataframes loaded")
+        
+        print("Computing distances....")
 
-    for x in ["distance-matrices", f"distance-matrices/{sys.argv[2]}-gram"]:
-        try:
-            os.mkdir(x)
-        except FileExistsError:
-            pass
-
-    for i, x in enumerate(tqdm(corpera)):
-        with open(f"distance-matrices/{sys.argv[2]}-gram/distances-{i+1}.pickle", "wb") as f:
-            distances = delta.functions.cosine_delta(x)
-            pkl.dump(distances, f)
-    
-    print("Distances computed!!!")
+        for x in ["distance-matrices", f"distance-matrices/{sys.argv[2]}-gram"]:
+            try:
+                os.mkdir(x)
+            except FileExistsError:
+                pass
+        
+        distance_matrices = []
+        for i, x in enumerate(tqdm(corpera)):
+            with open(f"distance-matrices/{sys.argv[2]}-gram/distances-{i+1}.pickle", "wb") as f:
+                distances = delta.functions.cosine_delta(x)
+                pkl.dump(distances, f)
+                distance_matrices.append(distances)
+        
+        print("Distances computed!!!")
     
     """
     with open("results.csv", "w") as f:
