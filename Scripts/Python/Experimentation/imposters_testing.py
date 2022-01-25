@@ -47,7 +47,7 @@ def main():
         trimmed_corpus = raw_corpus.cull(1/3)
         with open(f"feature-matrices({sys.argv[2]}-gram)/features-{str(get_int_in_str(x))}.pickle", "wb") as f:
             pkl.dump(trimmed_corpus, f)
-    
+
     if "-f" in sys.argv:
         quit()
 
@@ -122,16 +122,6 @@ def main():
                     #We add one value to the index to account for the difference between counting systems, and then one to 
                     #account for the lost inital value, so we can divide by two, which is neccisary to consider each user
                     #as distinct and not 
-    """
-    with open("results.csv", "w") as f:
-        for x in distances.columns:
-            if x[:4] != "#TS#":
-                df = distances[x]
-                df = df.sort_values(ascending=True)
-                df.drop(x, inplace=True) #In our correlation matrix, the author will ALWAYS be the first column, as the distance between x and x is 0
-                authors = list(df.index.values)
-                print(authors.index("#TS#" + x))
-    """
 if __name__ == "__main__":
     main()
 
