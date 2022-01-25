@@ -1,6 +1,4 @@
-from copyreg import pickle
 import pickle as pkl
-from turtle import distance
 import delta
 import sys
 import pandas as pd
