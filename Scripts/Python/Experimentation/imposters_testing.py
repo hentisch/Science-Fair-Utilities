@@ -38,8 +38,11 @@ def main():
     #This block creates the feature matrices
 
     current_progress = os.listdir(f"feature-matrices({sys.argv[2]}-gram)")
-    source_directory = os.listdir(sys.argv[1])
+    source_directory = sort_feature_matrices(os.listdir(sys.argv[1]))
     absent_corpera = [x for x in source_directory if get_int_in_str(x) not in [get_int_in_str(y) for y in current_progress]]
+
+    if "-r" in sys.argv:
+        absent_corpera.reverse()
 
     for i, x in enumerate(tqdm(absent_corpera)):
         raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=int(sys.argv[2])) #As this is the most computationally instensive step, we only want to do it once
