@@ -35,7 +35,11 @@ def sort_feature_matrices(arr:list):
 def main():
     #This block creates the feature matrices
 
-    current_progress = os.listdir(f"feature-matrices({sys.argv[2]}-gram)")
+    try:
+        current_progress:list = os.listdir(f"feature-matrices({sys.argv[2]}-gram)")
+    except FileNotFoundError:
+        current_progress = []
+        os.mkdir(f"feature-matrices({sys.argv[2]}-gram)")
     source_directory = sort_feature_matrices(os.listdir(sys.argv[1]))
     absent_corpera = [x for x in source_directory if get_int_in_str(x) not in [get_int_in_str(y) for y in current_progress]]
 
@@ -44,9 +48,9 @@ def main():
 
     for i, x in enumerate(tqdm(absent_corpera)):
         raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=int(sys.argv[2])) #As this is the most computationally instensive step, we only want to do it once
-        trimmed_corpus = raw_corpus.cull(1/3)
+        relative_feature_matrix = raw_corpus.get_mfw_table(1000)
         with open(f"feature-matrices({sys.argv[2]}-gram)/features-{str(get_int_in_str(x))}.pickle", "wb") as f:
-            pkl.dump(trimmed_corpus, f)
+            pkl.dump(relative_feature_matrix, f)
 
     if "-f" in sys.argv:
         quit()
