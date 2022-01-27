@@ -52,7 +52,7 @@ def main():
         absent_corpera.reverse()
     
     if "-s" in sys.argv:
-        print(list((split(absent_corpera, int(sys.argv[sys.argv.index("-s") + 1]))))[1])
+        print(list((split(absent_corpera, int(sys.argv[sys.argv.index("-s") + 1]))))[int(sys.argv[sys.argv.index("-s")])- 1])
         absent_corpera = list(split(absent_corpera, int(sys.argv[sys.argv.index("-s") + 1])))[int(sys.argv.index("-s") + 2)]
 
     for i, x in enumerate(tqdm(absent_corpera)):
