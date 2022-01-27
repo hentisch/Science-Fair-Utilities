@@ -32,6 +32,11 @@ def get_int_in_str(seq:str):
 def sort_feature_matrices(arr:list):
     return sorted(arr, key= lambda x: get_int_in_str(x), reverse=False)
 
+def split(a, n):
+    n = min(n, len(a))
+    k, m = divmod(len(a), n)
+    return (a[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(n))
+
 def main():
     #This block creates the feature matrices
 
@@ -45,6 +50,9 @@ def main():
 
     if "-r" in sys.argv:
         absent_corpera.reverse()
+    
+    if "-s" in sys.argv:
+        absent_corpera = list(split(absent_corpera, sys.argv[sys.argv.index("-s") + 1]))[sys.argv.index("-s") + 2]
 
     for i, x in enumerate(tqdm(absent_corpera)):
         raw_corpus = delta.Corpus(sys.argv[1] + "/" + x, ngrams=int(sys.argv[2])) #As this is the most computationally instensive step, we only want to do it once
