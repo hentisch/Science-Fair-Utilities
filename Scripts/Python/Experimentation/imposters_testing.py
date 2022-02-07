@@ -37,6 +37,12 @@ def split(a, n):
     k, m = divmod(len(a), n)
     return (a[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(n))
 
+def drop_duplicates(df:pd.DataFrame) -> pd.DataFrame:
+    for x in df.index:
+        if x.endswith("(1)"):
+            df = df.drop(index=x)
+    return df
+
 def main():
     #This block creates the feature matrices
 
@@ -78,6 +84,8 @@ def main():
                 pass
         
         for i, x in enumerate(tqdm(corpera)):
+            x = drop_duplicates(x)
+            x = delta.Corpus(x)
             with open(f"distance-matrices/{sys.argv[2]}-gram/cosine_delta/distances-{i+1}.pickle", "wb") as f:
                 if "-c" in sys.argv:
                     distances = delta.functions.cosine_delta(truncate_collumns(x, int(sys.argv[sys.argv.index("-c")+1])))
@@ -116,7 +124,7 @@ def main():
                     df = df.sort_values(ascending=True)
                     df.drop(x, inplace=True) #In our correlation matrix, the author will ALWAYS be the first column, as the distance between x and x is 0
                     authors = list(df.index.values)
-                    f.writelines(f"{x},{ceil((authors.index('#TS#' + x)+2) / 2)},{p+1}\n")  
+                    f.writelines(f"{x},{authors.index('#TS#' + x)+1},{p}\n")  
                     #We add one value to the index to account for the difference between counting systems, and then one to 
                     #account for the lost inital value, so we can divide by two, which is neccisary to consider each user
                     #as distinct and not 
@@ -130,7 +138,7 @@ def main():
                     df = df.sort_values(ascending=True)
                     df.drop(x, inplace=True) #In our correlation matrix, the author will ALWAYS be the first column, as the distance between x and x is 0
                     authors = list(df.index.values)
-                    f.writelines(f"{x},{authors.index('#TS#' + x)+1},{p+1}\n")  
+                    f.writelines(f"{x},{authors.index('#TS#' + x)+1},{p}\n")  
                     #We add one value to the index to account for the difference between counting systems
 if __name__ == "__main__":
     main()
