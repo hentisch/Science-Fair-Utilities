@@ -62,8 +62,6 @@ class PushshiftIO:
 
     @staticmethod
     def get_user_comments(user: str) -> list: 
-        #TODO: Please implement these to crawl back through a users history and get EVERYTHING they have posted that way
-        #Also, based on testing the returned results are limited to 100 despite what documentation says
         results = 101 
         content = []
         last_time = 0
